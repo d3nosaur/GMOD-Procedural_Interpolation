@@ -4,32 +4,32 @@ local ghostEntity = nil
 
 local ghostEntColor = Color(255, 0, 0, 200)
 
-/*
+--[[
     Interpolation Math Code
-*/
+]]--
 
 local prevPos;
-local currentVel;
+local currentVel; -- didn't trust gmods velocity so i just used this instead
 local interpolatedPos, interpolatedVel;
-local k1, k2, k3;
+local k1, k2, k3; -- three float constants used to interpolate the value, calculated via freq, damp, and undershot
 
-function InitializeConstants(frequency, dampening, undershot)
+function InitializeConstants(frequency, dampening, undershot) -- initialize the float constants, call this to change the freq, damp, and undershot
     k1 = dampening / (math.pi * frequency)
     k2 = 1 / ((2 * math.pi * frequency) * (2 * math.pi * frequency))
     k3 = undershot * dampening / (2 * math.pi * frequency)
 end
 
-function InitializePosVariables(startPos)
+function InitializePosVariables(startPos) -- initialize the default position vars for the entity
     prevPos = startPos
     interpolatedPos = startPos
     interpolatedVel = Vector(0, 0, 0)
 end
 
-function StabalizeK2(deltaTime) // if deltatime gets too big k2 can go all fucko and break, this ensures it always gets dampened
+function StabalizeK2(deltaTime) -- if deltatime gets too big k2 can go all fucko and break, this ensures it always gets dampened
     return math.max(k2, 1.1 * (deltaTime*deltaTime/4 + deltaTime*k1/2))
 end
 
-function IncrementInterpolation(newPos, deltaTime)
+function IncrementInterpolation(newPos, deltaTime) -- increments the interpolation towards newPos based on the time passed
     if not currentVel then
         currentVel = (newPos - prevPos) / deltaTime
         prevPos = newPos
@@ -42,9 +42,9 @@ function IncrementInterpolation(newPos, deltaTime)
     return interpolatedPos
 end
 
-/*
+--[[
     Garry's Mod Handling Code
-*/
+]]--
 
 local prevFreq, prevDamp, prevUndr;
 
