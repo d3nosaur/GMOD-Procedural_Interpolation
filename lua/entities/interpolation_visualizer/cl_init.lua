@@ -33,13 +33,13 @@ end
 function ENT:Initialize()
     local freq = self:GetFrequency()
     local damp = self:GetDampening()
-    local undr = self:GetUndershot()
+    local ovrs = self:GetOvershoot()
 
     self.prevFreq = freq
     self.prevDamp = damp
-    self.prevUndr = undr
+    self.prevOvrs = ovrs
 
-    self.positionDynamics = SecondOrderDynamics:New(nil, freq, damp, undr, self:GetPos())
+    self.positionDynamics = SecondOrderDynamics:New(nil, freq, damp, ovrs, self:GetPos())
 
     self:CreateGhostEntity()
 end
@@ -49,14 +49,14 @@ function ENT:Draw()
 
     local freq = self:GetFrequency()
     local damp = self:GetDampening()
-    local undr = self:GetUndershot()
+    local ovrs = self:GetOvershoot()
 
-    if(self.prevFreq != freq || self.prevDamp != damp || self.prevUndr != undr) then
+    if(self.prevFreq != freq || self.prevDamp != damp || self.prevOvrs != ovrs) then
         self.prevFreq = freq
         self.prevDamp = damp
-        self.prevUndr = undr
+        self.prevOvrs = ovrs
 
-        self.positionDynamics:UpdateConstants(freq, damp, undr)
+        self.positionDynamics:UpdateConstants(freq, damp, ovrs)
     end
 
     self:UpdateGhostEntity()
