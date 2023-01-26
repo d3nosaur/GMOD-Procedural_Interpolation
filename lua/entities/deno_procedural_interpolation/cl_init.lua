@@ -26,7 +26,7 @@ function InitializePosVariables(startPos) -- initialize the default position var
 end
 
 function StabalizeK2(deltaTime) -- if deltatime gets too big k2 can go all fucko and break, this ensures it always gets dampened
-    return math.max(k2, 1.1 * (deltaTime*deltaTime/4 + deltaTime*k1/2))
+    return math.max(k2, 1.1 * ((deltaTime*deltaTime/4) + (deltaTime*k1/2)))
 end
 
 function IncrementInterpolation(newPos, deltaTime) -- increments the interpolation towards newPos based on the time passed

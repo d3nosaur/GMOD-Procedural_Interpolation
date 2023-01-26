@@ -1,0 +1,67 @@
+include('shared.lua')
+
+local ghostEntColor = Color(255, 0, 0, 200)
+
+function UpdateGhostEntity(parent)
+    if not ghostEntity then
+        ghostEntity = ClientsideModel("models/hunter/blocks/cube075x075x075.mdl")
+        ghostEntity:Spawn()
+        ghostEntity:SetColor(ghostEntColor)
+        ghostEntity:SetRenderMode(RENDERMODE_TRANSCOLOR)
+    end
+
+    local newPos = IncrementInterpolation(parent:GetPos(), FrameTime())
+
+    ghostEntity:SetPos(newPos)
+    ghostEntity:SetAngles(parent:GetAngles())
+end
+
+function ENT:CreateGhostEntity()
+    self.ghostEnt = ClientsideModel("models/hunter/blocks/cube075x075x075.mdl")
+    self.ghostEnt:Spawn()
+    self.ghostEnt:SetColor(ghostEntColor)
+    self.ghostEnt:SetRenderMode(RENDERMODE_TRANSCOLOR)
+end
+
+function ENT:UpdateGhostEntity()
+    local newPos = self.positionDynamics:Update(FrameTime(), self:GetPos())
+
+    self.ghostEnt:SetPos(newPos)
+    self.ghostEnt:SetAngles(self:GetAngles())
+end
+
+function ENT:Initialize()
+    local freq = self:GetFrequency()
+    local damp = self:GetDampening()
+    local undr = self:GetUndershot()
+
+    self.prevFreq = freq
+    self.prevDamp = damp
+    self.prevUndr = undr
+
+    self.positionDynamics = SecondOrderDynamics:New(nil, freq, damp, undr, self:GetPos())
+
+    self:CreateGhostEntity()
+end
+
+function ENT:Draw()
+    self:DrawModel()
+
+    local freq = self:GetFrequency()
+    local damp = self:GetDampening()
+    local undr = self:GetUndershot()
+
+    if(self.prevFreq != freq || self.prevDamp != damp || self.prevUndr != undr) then
+        self.prevFreq = freq
+        self.prevDamp = damp
+        self.prevUndr = undr
+
+        self.positionDynamics:UpdateConstants(freq, damp, undr)
+    end
+
+    self:UpdateGhostEntity()
+end
+
+function ENT:OnRemove()
+    self.ghostEnt:Remove()
+end
